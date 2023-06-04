@@ -1,0 +1,235 @@
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  Image,
+  Flex,
+  createStyles,
+  Grid,
+  Button,
+  Burger,
+  Avatar,
+  Menu,
+  Text,
+} from "@mantine/core";
+import { useMediaQuery, useHover, useDisclosure } from "@mantine/hooks";
+import { AtomsContainer } from "@/Components/Atoms";
+import { useSelector, useDispatch } from "react-redux";
+import { useStorage, useJwtDecode } from "@/utility/storage";
+import { SET_USER, RESET_USER } from "@/store/UserSlice";
+import { logoutUser } from "@/store/UserSlice";
+import { useApi } from "@/utility/api";
+import { router } from "@/router";
+
+const useStyles = createStyles((theme) => ({
+  navbar: {
+    background: "white",
+    borderBottom: ".05rem",
+    borderBottomColor: theme.colors.gray[2],
+    borderBottomStyle: "solid",
+  },
+}));
+
+export default function Navbar() {
+  const $location = useLocation();
+  const $user = useSelector((state) => state.user);
+  const $dispatch = useDispatch();
+  const $navigate = useNavigate();
+  const { classes } = useStyles();
+  const $isMobile = useMediaQuery("(max-width: 80em)");
+  const [openHamburger, { toggle: toggleHamburger }] = useDisclosure(false);
+  const { hoveredMenuProfile, setHoveredMenuProfile } = useHover();
+  const [routes, setRoutes] = useState(null);
+
+  useEffect(() => {
+    // console.log(router?.routes?.filter((route) => route?.meta?.navigator));
+    if (router?.routes)
+      setRoutes(
+        router.routes.filter(
+          (route) =>
+            route?.meta?.name &&
+            route?.meta?.navigator &&
+            (!route?.meta?.roles ||
+              route?.meta?.roles?.find((role) => $user.roles?.includes(role)))
+        )
+      );
+  }, [$location, $user.isLogged]);
+
+  return (
+    <nav className={classes.navbar}>
+      <AtomsContainer>
+        <Grid grow py=".5rem" my="0">
+          <Grid.Col span={$isMobile ? 6 : "auto"}>
+            <Flex
+              gap="xs"
+              justify="start"
+              align="center"
+              direction="row"
+              wrap="wrap"
+            >
+              <Image width={150} fit="contain" src="/logo.png" />
+            </Flex>
+          </Grid.Col>
+
+          {$isMobile && (
+            <Grid.Col span={6}>
+              <Flex
+                gap="xs"
+                justify="flex-end"
+                align="center"
+                style={{ height: "100%" }}
+              >
+                <Burger
+                  style={{
+                    marginLeft: "auto",
+                  }}
+                  opened={openHamburger}
+                  onClick={toggleHamburger}
+                  aria-label="Hamburger"
+                />
+              </Flex>
+            </Grid.Col>
+          )}
+          {Boolean(($isMobile && openHamburger) || !$isMobile) && (
+            <>
+              <Grid.Col span={$isMobile ? 12 : "auto"}>
+                <Flex
+                  gap="xs"
+                  justify="center"
+                  align="center"
+                  direction={$isMobile ? "column" : "row"}
+                  style={{ height: "100%" }}
+                >
+                  {routes &&
+                    routes.map(({ meta, path }, idx) => (
+                      <Button
+                        key={idx}
+                        ta="start"
+                        tt="capitalize"
+                        compact={$isMobile ? false : true}
+                        variant="subtle"
+                        fullWidth={$isMobile ? true : false}
+                        onClick={() => {
+                          $navigate(path || "/");
+                        }}
+                      >
+                        {meta.name}
+                      </Button>
+                    ))}
+                </Flex>
+              </Grid.Col>
+              <Grid.Col span="auto">
+                <Flex
+                  gap="xs"
+                  justify="flex-end"
+                  align="center"
+                  direction="row"
+                  wrap="wrap"
+                >
+                  {$user.isLogged ? (
+                    <>
+                      {$isMobile ? (
+                        <Button fullWidth onClick={() => $navigate("/profil")}>
+                          Lihat Akun Anda
+                        </Button>
+                      ) : (
+                        <Menu shadow="md" width={200}>
+                          <Menu.Target>
+                            <Flex
+                              justify={$isMobile ? "flex-start" : "flex-end"}
+                              align="center"
+                              direction="row"
+                              w={$isMobile ? "100%" : "auto"}
+                              gap={10}
+                            >
+                              {$isMobile && <br />}
+                              <Avatar
+                                radius="xl"
+                                size={$isMobile ? "lg" : "md"}
+                                src={$user.avatar}
+                                sx={(theme) => ({
+                                  cursor: "pointer",
+                                })}
+                              />
+
+                              {$isMobile && (
+                                <div>
+                                  <Text tt="capitalize">{$user.name}</Text>
+                                  <Text c="blue">{$user.email}</Text>
+                                </div>
+                              )}
+                            </Flex>
+                          </Menu.Target>
+
+                          <Menu.Dropdown>
+                            <Menu.Label>
+                              Profil : <Text c="blue">{$user.email}</Text>
+                            </Menu.Label>
+                            <Menu.Item
+                              onClick={() => $navigate("/profil")}
+                              icon={<i className="ri-user-fill ri-lg"></i>}
+                            >
+                              Edit Profil
+                            </Menu.Item>
+                            <Menu.Item
+                              onClick={() => $navigate("/profil")}
+                              icon={<i className="ri-store-3-fill ri-lg"></i>}
+                            >
+                              Keranjang Anda
+                            </Menu.Item>
+                            <Menu.Item
+                              onClick={() => $navigate("/profil")}
+                              icon={<i className="ri-bill-fill ri-lg"></i>}
+                            >
+                              Riwayat Transaksi
+                            </Menu.Item>
+                            <Menu.Item
+                              onClick={() => $navigate("/profil")}
+                              icon={<i className="ri-equalizer-fill ri-lg"></i>}
+                            >
+                              Pengaturan
+                            </Menu.Item>
+                            {/* <Menu.Item
+                 icon={<IconSearch size={14} />}
+                 rightSection={<Text size="xs" color="dimmed">⌘K</Text>}
+               >
+                 Search
+               </Menu.Item> */}
+
+                            <Menu.Divider />
+
+                            <Menu.Label>Akun</Menu.Label>
+                            {/* <Menu.Item icon={<IconArrowsLeftRight size={14} />}>Transfer my data</Menu.Item> */}
+                            <Menu.Item
+                              onClick={() => {
+                                $dispatch(logoutUser());
+                                $navigate("/");
+                              }}
+                              color="red"
+                              icon={
+                                <i className="ri-logout-circle-fill ri-lg"></i>
+                              }
+                            >
+                              Keluar
+                            </Menu.Item>
+                          </Menu.Dropdown>
+                        </Menu>
+                      )}
+                    </>
+                  ) : (
+                    <Button
+                      onClick={() => $navigate("/masuk")}
+                      variant="outline"
+                      fullWidth={$isMobile ? true : false}
+                    >
+                      Masuk/Daftar
+                    </Button>
+                  )}
+                </Flex>
+              </Grid.Col>
+            </>
+          )}
+        </Grid>
+      </AtomsContainer>
+    </nav>
+  );
+}
