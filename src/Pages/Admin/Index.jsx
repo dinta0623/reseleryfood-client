@@ -13,10 +13,7 @@ export default function Profil() {
 
   return (
     <>
-      <Navbar />
-      <br />
-
-      <AtomsContainer>
+      <AtomsContainer mt="lg">
         <Title order={1}>Admin</Title>
         <br />
         <Tabs value={activeTab} onTabChange={setActiveTab}>

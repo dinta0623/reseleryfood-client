@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Tabs, Title } from "@mantine/core";
 import { AtomsContainer } from "@/Components/Atoms";
 import Navbar from "@/Components/Organism/Navbar";
@@ -6,19 +6,43 @@ import MenuResto from "./Menu/Index";
 import KurirResto from "./Kurir/Index";
 import TransaksiResto from "./Transaksi/Index";
 import Ulasan from "./Ulasan/Index";
+import { useApi } from "@/utility/api";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { SET_MITRA } from "@/store/MitraSlice";
+import { nprogress } from "@mantine/nprogress";
 
 export default function Profil() {
-  const [state, setState] = useState();
+  const $dispatch = useDispatch();
+  const $user = useSelector((state) => state.user);
+  const $mitra = useSelector((state) => state.mitra);
+  const [activeTab, setActiveTab] = useState("menu");
 
+  const [state, setState] = useState();
+  useEffect(() => {
+    // console.log("test", $user);
+    (async function fetchData() {
+      try {
+        // setMainLoading(true);
+        nprogress.start();
+        const $resp = await useApi.get(`/mitra/${$user.mitra_id}`);
+        $dispatch(SET_MITRA($resp.result));
+      } finally {
+        // setMainLoading(false);
+        nprogress.complete();
+      }
+      //
+    })();
+  }, []);
   return (
     <>
       <Navbar />
       <br />
 
       <AtomsContainer>
-        <Title order={1}>Resto ###</Title>
+        <Title order={1}>Resto {$mitra.name}</Title>
         <br />
-        <Tabs defaultValue="menu">
+        <Tabs value={activeTab} onTabChange={setActiveTab}>
           <Tabs.List>
             <Tabs.Tab
               value="menu"
@@ -47,16 +71,16 @@ export default function Profil() {
           </Tabs.List>
 
           <Tabs.Panel value="menu" pt="xs">
-            <MenuResto></MenuResto>
+            {activeTab == "menu" && <MenuResto />}
           </Tabs.Panel>
           <Tabs.Panel value="transaksi" pt="xs">
-            <TransaksiResto></TransaksiResto>
+            {activeTab == "transaksi" && <TransaksiResto />}
           </Tabs.Panel>
           <Tabs.Panel value="kurir" pt="xs">
-            <KurirResto></KurirResto>
+            {activeTab == "kurir" && <KurirResto />}
           </Tabs.Panel>
           <Tabs.Panel value="ulasan" pt="xs">
-            <Ulasan></Ulasan>
+            {activeTab == "ulasan" && <Ulasan />}
           </Tabs.Panel>
         </Tabs>
       </AtomsContainer>

@@ -1,16 +1,19 @@
 import { useEffect, useState, useLayoutEffect } from "react";
 import { Notifications } from "@mantine/notifications";
 import { NavigationProgress } from "@mantine/nprogress";
-import { LoadingOverlay, Box } from "@mantine/core";
-import { useLocation, Route, Routes } from "react-router-dom";
+import { Flex, Image, Box } from "@mantine/core";
+import { useLocation, Route, Routes, Navigate } from "react-router-dom";
 
 import { useApi } from "@/utility/api";
 import { useStorage, useJwtDecode } from "@/utility/storage";
 import { SET_USER, RESET_USER } from "@/store/UserSlice";
+import { SET_MITRA } from "@/store/MitraSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { router } from "@/router";
+import Guard from "./Components/Organism/Guard";
 
 function App() {
+  const $state = useSelector((state) => state);
   const $user = useSelector((state) => state.user);
   const $location = useLocation();
   const $dispatch = useDispatch();
@@ -24,20 +27,24 @@ function App() {
       const $resp = await useApi.get(`/users/${user?.payload?.id}`);
       $dispatch(
         SET_USER({
-          ...user?.payload,
           ...$resp?.result,
+          ...user?.payload, // mitra_id here
           isLogged: true,
         })
       );
     } else {
       $dispatch(RESET_USER());
     }
+    if ($user.roles?.includes("mitra")) {
+      const $resp = await useApi.get(`/mitra/${$user.mitra_id}`);
+      $dispatch(SET_MITRA($resp.result));
+    }
   }
   useLayoutEffect(() => {
     (async function _() {
       setLoading(true);
       await fetchData();
-      setLoading(false);
+      setTimeout(() => setLoading(false), 1000);
     })();
   }, []);
   useEffect(() => {
@@ -50,15 +57,33 @@ function App() {
           <NavigationProgress progressLabel="Loading Page" />
           <Notifications position="top-right" />
           <Routes>
-            {router.routes.map((item, idx) => (
-              <Route key={idx} {...item} />
-            ))}
+            {...router.routes?.map(({ element: Element, ...rest }, idx) => {
+              if (typeof rest.meta?.validate == "function") {
+                return (
+                  <Route
+                    key={idx}
+                    element={
+                      <Guard
+                        isRouteAccessible={() =>
+                          rest.meta.validate({ $state, $meta: rest.meta })
+                        }
+                        redirectRoute={rest.meta.redirectRoute}
+                      >
+                        <Element />
+                      </Guard>
+                    }
+                    {...rest}
+                  />
+                );
+              }
+              return <Route key={idx} element={<Element />} {...rest} />;
+            })}
           </Routes>
         </>
       ) : (
-        <Box maw={400} pos="relative">
-          Loading...
-        </Box>
+        <Flex w="100%" h="100vh" justify="center" align="center">
+          <Image width={150} fit="contain" src="/logo.png" />
+        </Flex>
       )}
     </div>
   );

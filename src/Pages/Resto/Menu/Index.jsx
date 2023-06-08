@@ -16,22 +16,30 @@ import { useApi } from "@/utility/api";
 import { useMediaQuery } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import { AtomsContainer } from "@/Components/Atoms";
+import { useSelector } from "react-redux";
 
 export default function Users() {
   const $navigate = useNavigate();
   const $isMobile = useMediaQuery("(max-width: 80em)");
-  const [users, setUsers] = useState(null);
+  const [menu, setMenu] = useState(null);
+  const $mitra = useSelector((state) => state.mitra);
+
   const [mainLoading, setMainLoading] = useState(false);
   useEffect(() => {
-    (async function fetchData() {
-      try {
-        setMainLoading(true);
-        const $resp = await useApi.get(`/users`);
-        setUsers($resp.result);
-      } finally {
-        setMainLoading(false);
-      }
-    })();
+    if ($mitra)
+      (async function fetchData() {
+        try {
+          setMainLoading(true);
+          const $query = `SELECT * FROM menu WHERE mitra_id = '${$mitra.id}'`;
+          const $resp = await useApi.get(`/menu/q/${$query}`);
+          setMenu($resp.result);
+          console.log(menu);
+        } catch (error) {
+          // console.log(error);
+        } finally {
+          setMainLoading(false);
+        }
+      })();
   }, []);
   return (
     <>
@@ -42,13 +50,13 @@ export default function Users() {
 
           <Button
             variant="light"
-            onClick={() => $navigate("/admin/menu/daftar")}
+            onClick={() => $navigate("/resto/menu/daftar")}
           >
             Tambah Menu
           </Button>
         </Flex>
 
-        {!mainLoading && users ? (
+        {!mainLoading && menu ? (
           //   users.map((user, idx) => (
           //     <Paper key={idx} p="md" mt="md" shadow="sm" radius="md">
           //       <Flex
@@ -80,20 +88,22 @@ export default function Users() {
             py=".5rem"
             my="0"
             gutter="xl"
-            justify="center"
+            justify="flex-start"
           >
-            {Array.from({ length: 10 }).map((item, idx) => (
+            {menu.map((item, idx) => (
               <Grid.Col key={idx} span={$isMobile ? 12 : 4}>
                 <Card shadow="sm" p="lg">
                   <Card.Section
                     component="a"
-                    href="https://mantine.dev"
-                    target="_blank"
+                    // href="https://mantine.dev"
+                    // target="_blank"
                   >
                     <Image
-                      src="https://d1o6t6wdv45461.cloudfront.net/s4/fm/47/newsletter/Nasi%20Goreng%20Kambing_27195221.jpg"
-                      height={160}
-                      alt="Norway"
+                      width="100%"
+                      height={250}
+                      src={item?.picture}
+                      alt="Random image"
+                      withPlaceholder
                     />
                   </Card.Section>
 
@@ -101,24 +111,29 @@ export default function Users() {
                     position="apart"
                     style={{ marginBottom: 5, marginTop: "25px" }}
                   >
-                    <Text weight={700}>Nasi Goreng </Text>
+                    <Text weight={700}>{item.name}</Text>
                     <Badge color="brand" variant="light">
                       Status
                     </Badge>
                   </Group>
                   <br />
                   <Text size="sm" style={{ lineHeight: 1.5 }}>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                    Eos labore voluptate aut nesciunt inventore rerum eveniet
-                    incidunt eaque perspiciatis.
+                    {item.desc}
                   </Text>
 
-                  <Button variant="light" fullWidth style={{ marginTop: 14 }}>
+                  <Button
+                    onClick={() => $navigate(`/resto/menu/${item.id}`)}
+                    variant="light"
+                    fullWidth
+                    style={{ marginTop: 14 }}
+                  >
                     Edit Menu
                   </Button>
-                  <Button color="red" fullWidth style={{ marginTop: 14 }}>
-                    Nonaktifkan
-                  </Button>
+                  {!item.disable && (
+                    <Button color="red" fullWidth style={{ marginTop: 14 }}>
+                      Nonaktifkan
+                    </Button>
+                  )}
                 </Card>
               </Grid.Col>
             ))}

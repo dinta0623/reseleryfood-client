@@ -6,24 +6,17 @@ import {
   Tabs,
   Text,
   Image,
-  Flex,
-  createStyles,
   Grid,
   Button,
-  Badge,
-  Group,
-  Card,
-  SimpleGrid,
   FileInput,
   TextInput,
 } from "@mantine/core";
 import { nprogress, NavigationProgress } from "@mantine/nprogress";
-import { useMediaQuery, useHover, useDisclosure } from "@mantine/hooks";
+import { useMediaQuery } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
 import { AtomsContainer } from "@/Components/Atoms";
 import { useForm } from "@mantine/form";
 import { useSelector, useDispatch } from "react-redux";
-import Navbar from "@/Components/Organism/Navbar";
 import { SET_USER } from "../../store/UserSlice";
 
 export default function Profil() {
@@ -37,6 +30,7 @@ export default function Profil() {
     email: "",
     password: "",
   };
+
   const $form = useForm({
     validateInputOnChange: true,
     initialValues: $initialValues,

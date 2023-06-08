@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Tabs, Text } from "@mantine/core";
 import { AtomsContainer } from "@/Components/Atoms";
 import Navbar from "@/Components/Organism/Navbar";
-import ItemBiodata from "./ItemBiodata";
+import ItemBiodata from "./Biodata";
 import RiwayatTransaksi from "./Transaksi";
 import Keranjang from "./Keranjang";
 
@@ -10,10 +10,7 @@ export default function Profil() {
   const [state, setState] = useState();
   return (
     <>
-      <Navbar />
-      <br />
-
-      <AtomsContainer>
+      <AtomsContainer mt="lg">
         <Tabs defaultValue="biodata">
           <Tabs.List>
             <Tabs.Tab

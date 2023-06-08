@@ -18,7 +18,7 @@ import { useStorage, useJwtDecode } from "@/utility/storage";
 import { SET_USER, RESET_USER } from "@/store/UserSlice";
 import { logoutUser } from "@/store/UserSlice";
 import { useApi } from "@/utility/api";
-import { router } from "@/router";
+import { router, ROLES } from "@/router";
 
 const useStyles = createStyles((theme) => ({
   navbar: {
@@ -31,11 +31,13 @@ const useStyles = createStyles((theme) => ({
 
 export default function Navbar() {
   const $location = useLocation();
+  const $state = useSelector((state) => state);
   const $user = useSelector((state) => state.user);
   const $dispatch = useDispatch();
   const $navigate = useNavigate();
-  const { classes } = useStyles();
   const $isMobile = useMediaQuery("(max-width: 80em)");
+
+  const { classes } = useStyles();
   const [openHamburger, { toggle: toggleHamburger }] = useDisclosure(false);
   const { hoveredMenuProfile, setHoveredMenuProfile } = useHover();
   const [routes, setRoutes] = useState(null);
@@ -48,10 +50,12 @@ export default function Navbar() {
           (route) =>
             route?.meta?.name &&
             route?.meta?.navigator &&
-            (!route?.meta?.roles ||
-              route?.meta?.roles?.find((role) => $user.roles?.includes(role)))
+            (typeof route?.meta?.validate == "function"
+              ? route.meta.validate({ $state, $meta: route?.meta })
+              : true)
         )
       );
+    // console.log(ROLES.mitra, $user);
   }, [$location, $user.isLogged]);
 
   return (

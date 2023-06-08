@@ -3,19 +3,22 @@ import { useEffect, useState } from "react";
 import { useApi } from "@/utility/api";
 import { useMediaQuery } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import ListMitra from "./List/Index";
 import ListProduk from "./Menu/Index";
 
 export default function Users() {
   const $navigate = useNavigate();
+  const $user = useSelector((state) => state.user);
   const $isMobile = useMediaQuery("(max-width: 80em)");
   const [activeTab, setActiveTab] = useState("pengguna");
   const [mainLoading, setMainLoading] = useState(false);
   // useEffect(() => {
+  //   console.log("test", $user);
   //   (async function fetchData() {
   //     try {
   //       setMainLoading(true);
-  //       const $resp = await useApi.get(`/users`);
+  //       // const $resp = await useApi.get(`/mitra/${id}`);
   //       // setUsers($resp.result);
   //     } finally {
   //       setMainLoading(false);

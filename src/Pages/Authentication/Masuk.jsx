@@ -75,12 +75,11 @@ export default function Masuk(props) {
       if ($form.isValid()) {
         const resp = await useApi.post("/login", values);
         $dispatch(SET_LOGIN(resp?.result));
-
         $navigate("/");
       }
       $form.reset();
     } catch (error) {
-      // console.log(error);
+      console.log(error);
       if (error?.data?.message && typeof error?.data?.message == "object") {
         Object.keys(error?.data?.message).forEach((key) => {
           $form.setFieldError(key, error?.data?.message[key]);
@@ -94,16 +93,6 @@ export default function Masuk(props) {
       $endLoading();
     }
   };
-
-  // useEffect(async () => {
-  //   // setModalError.open();
-  //   console.log(
-  //     "test",
-  //     $dispatch(
-  //       LOGIN({ email: "bambang@gmail.com", password: "12345678" })
-  //     )
-  //   );
-  // }, []);
 
   return (
     <>

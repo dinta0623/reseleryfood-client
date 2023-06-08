@@ -3,29 +3,23 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useApi } from "@/utility/api";
 
 import {
-  Tabs,
   Text,
   Image,
   Title,
   Flex,
-  createStyles,
   Grid,
   Button,
-  Badge,
   MultiSelect,
-  Card,
-  SimpleGrid,
   FileInput,
   TextInput,
 } from "@mantine/core";
-import { nprogress, NavigationProgress } from "@mantine/nprogress";
-import { useMediaQuery, useHover, useDisclosure } from "@mantine/hooks";
+import { nprogress } from "@mantine/nprogress";
+import { useMediaQuery } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
 import { AtomsContainer } from "@/Components/Atoms";
 import { useForm } from "@mantine/form";
 import { useSelector, useDispatch } from "react-redux";
-import Navbar from "@/Components/Organism/Navbar";
-import { SET_USER } from "@/store/UserSlice";
+import blobToBase64 from "@/utility/blobToBase64";
 
 export default function Profil() {
   const $params = useParams();
@@ -42,6 +36,7 @@ export default function Profil() {
     email: "",
     password: "",
   };
+
   const $form = useForm({
     validateInputOnChange: true,
     initialValues: $initialValues,
@@ -60,14 +55,6 @@ export default function Profil() {
   });
 
   const [image, setImage] = useState(null);
-
-  const blobToBase64 = (blob) => {
-    return new Promise((resolve, _) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
-  };
 
   const $onUploadAvatar = async (file) => {
     nprogress.start();

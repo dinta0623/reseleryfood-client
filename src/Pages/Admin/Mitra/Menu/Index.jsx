@@ -1,8 +1,8 @@
 import {
   Text,
-  Paper,
+  ActionIcon,
   Flex,
-  Avatar,
+  Menu as MantineMenu,
   Button,
   Title,
   Grid,
@@ -17,17 +17,18 @@ import { useMediaQuery } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
 import { AtomsContainer } from "@/Components/Atoms";
 
-export default function Users() {
+export default function Menu() {
   const $navigate = useNavigate();
   const $isMobile = useMediaQuery("(max-width: 80em)");
-  const [users, setUsers] = useState(null);
+  const [menu, setMenu] = useState(null);
   const [mainLoading, setMainLoading] = useState(false);
   useEffect(() => {
     (async function fetchData() {
       try {
         setMainLoading(true);
-        const $resp = await useApi.get(`/users`);
-        setUsers($resp.result);
+        const $resp = await useApi.get(`/menu`);
+        setMenu($resp.result);
+        console.log($resp.result);
       } finally {
         setMainLoading(false);
       }
@@ -36,10 +37,11 @@ export default function Users() {
   return (
     <>
       <AtomsContainer size="100%" p={0} pl={25}>
-        <Flex justify="space-between" align="center">
+        <Flex justify="flex-start" align="center" gap={25}>
           <Title order={3}>Daftar Menu</Title>
 
           <Button
+            compact
             variant="light"
             onClick={() => $navigate("/admin/menu/daftar")}
           >
@@ -47,8 +49,8 @@ export default function Users() {
           </Button>
         </Flex>
 
-        {!mainLoading && users ? (
-          //   users.map((user, idx) => (
+        {!mainLoading && menu ? (
+          //   menu.map((user, idx) => (
           //     <Paper key={idx} p="md" mt="md" shadow="sm" radius="md">
           //       <Flex
           //         gap={25}
@@ -79,20 +81,21 @@ export default function Users() {
             py=".5rem"
             my="0"
             gutter="xl"
-            justify="center"
+            justify="flex-start"
           >
-            {Array.from({ length: 10 }).map((item, idx) => (
+            {menu.map((item, idx) => (
               <Grid.Col key={idx} span={$isMobile ? 12 : 4}>
-                <Card shadow="sm" p="lg">
+                <Card shadow="sm" p="lg" h="100%">
                   <Card.Section
                     component="a"
-                    href="https://mantine.dev"
-                    target="_blank"
+                    // href="https://mantine.dev"
+                    // target="_blank"
                   >
                     <Image
-                      src="https://i.gojekapi.com/darkroom/gofood-indonesia/v2/images/uploads/5474d317-d794-4ef3-b370-5de2a5fd3f55_Go-Biz_20221226_150811.jpeg?auto=format"
+                      withPlaceholder
+                      src={item.picture}
                       height={160}
-                      alt="Norway"
+                      alt="Gambar Menu"
                     />
                   </Card.Section>
 
@@ -100,24 +103,62 @@ export default function Users() {
                     position="apart"
                     style={{ marginBottom: 5, marginTop: "25px" }}
                   >
-                    <Text weight={700}>Nasi Campur Mak Odeng</Text>
-                    <Badge color="brand" variant="light">
-                      Status
-                    </Badge>
+                    <Flex justify="space-between" align="center" w="100%">
+                      <Badge color="brand" variant="light">
+                        {item.qty > 0 ? "Tersedia" : "Tidak Tersedia"}
+                      </Badge>
+                      <div>
+                        <MantineMenu width={200} shadow="md">
+                          <MantineMenu.Target>
+                            <ActionIcon>
+                              <i className="ri-more-2-fill ri-lg"></i>
+                            </ActionIcon>
+                          </MantineMenu.Target>
+
+                          <MantineMenu.Dropdown>
+                            <MantineMenu.Item
+                              onClick={() =>
+                                $navigate(`/admin/menu/${item.id}`)
+                              }
+                            >
+                              Edit
+                            </MantineMenu.Item>
+                            <MantineMenu.Item>Nonaktifkan</MantineMenu.Item>
+                          </MantineMenu.Dropdown>
+                        </MantineMenu>
+                      </div>
+                    </Flex>
+                    <div>
+                      <Text weight={700}>{item.name}</Text>
+                      <Text
+                        underline
+                        color="blue"
+                        size="sm"
+                        style={{ lineHeight: 1.5 }}
+                      >
+                        {item.mitra || "-"}
+                      </Text>
+                      <Text size="xs">Stok : {item.qty || 0}</Text>
+                    </div>
                   </Group>
                   <br />
                   <Text size="sm" style={{ lineHeight: 1.5 }}>
-                    Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                    Eos labore voluptate aut nesciunt inventore rerum eveniet
-                    incidunt eaque perspiciatis.
+                    {item.desc || "Tidak ada keterangan"}
                   </Text>
-
-                  <Button variant="light" fullWidth style={{ marginTop: 14 }}>
-                    Edit Menu
-                  </Button>
-                  <Button color="red" fullWidth style={{ marginTop: 14 }}>
-                    Nonaktifkan
-                  </Button>
+                  <br />
+                  {/* <div>
+                      <Button
+                        style={{ marginTop: "auto !important" }}
+                        onClick={() => $navigate(`/admin/menu/${item.id}`)}
+                        variant="light"
+                        fullWidth
+                      >
+                        Edit Menu
+                      </Button>
+                      <Button color="red" fullWidth style={{ marginTop: 14 }}>
+                        Nonaktifkan
+                      </Button>
+                    </div> */}
                 </Card>
               </Grid.Col>
             ))}

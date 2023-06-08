@@ -26,6 +26,7 @@ export default function Profil() {
   const $params = useParams();
   const $dispatch = useDispatch();
   const $navigate = useNavigate();
+  const $mitra = useSelector((state) => state.mitra);
   const $isMobile = useMediaQuery("(max-width: 80em)");
 
   const [menu, setMenu] = useState(null);
@@ -34,11 +35,9 @@ export default function Profil() {
   const [mainLoading, setMainLoading] = useState(false);
 
   const $initialValues = {
-    mitra_id: "",
     name: "",
     qty: 0,
     price: 0,
-    // status: "",
     desc: "",
   };
   const $form = useForm({
@@ -49,8 +48,6 @@ export default function Profil() {
         value.length >= 2 ? null : "Nama setidaknya mengandung 2 karakter",
       qty: (value) => (Number(value) > 0 ? null : "Pastikan isi stok benar"),
       price: (value) => (Number(value) > 0 ? null : "Pastikan harga terisi"),
-      mitra_id: (value) =>
-        value ? null : "Pastikan mitra/resto terpilih satu",
     },
   });
 
@@ -103,15 +100,15 @@ export default function Profil() {
           ...payload,
           picture: image?.url,
         };
+        console.log($mitra, { ...body, mitra_id: $mitra.id });
+        window.open(body.picture);
         if ($params.id) {
-          console.log({ id: $params.id, ...body });
           await useApi
             .put("/menu", { id: $params.id, ...body })
             .then((resp) => setMenu(resp.result));
         } else {
           await useApi.post("/menu", body);
         }
-        $navigate(-1);
         showNotification({
           title: "Berhasil",
           message: "Berhasil menyimpan data menu",
@@ -120,7 +117,6 @@ export default function Profil() {
         $form.reset();
       }
     } catch (error) {
-      console.log(error);
       showNotification({
         title: "Gagal",
         message: "Terdapat kesalahan ketika menyimpan menu",
@@ -134,34 +130,34 @@ export default function Profil() {
     }
   };
 
-  const $onSearchMitra = async (payload) => {
-    nprogress.start();
-    const search = payload.currentTarget.value;
+  //   const $onSearchMitra = async (payload) => {
+  //     nprogress.start();
+  //     const search = payload.currentTarget.value;
 
-    const resp = await useApi.get("/mitra", {
-      ...(search
-        ? {
-            params: {
-              name: `'%${search}%'`,
-            },
-          }
-        : {}),
-    });
+  //     const resp = await useApi.get("/mitra", {
+  //       ...(search
+  //         ? {
+  //             params: {
+  //               name: `'%${search}%'`,
+  //             },
+  //           }
+  //         : {}),
+  //     });
 
-    if (resp?.result?.length > 0) {
-      setDataMitra(
-        resp.result.map((item) => ({
-          value: item.id,
-          label: item.name,
-        }))
-      );
-    }
+  //     if (resp?.result?.length > 0) {
+  //       setDataMitra(
+  //         resp.result.map((item) => ({
+  //           value: item.id,
+  //           label: item.name,
+  //         }))
+  //       );
+  //     }
 
-    nprogress.complete();
-  };
+  //     nprogress.complete();
+  //   };
 
   useEffect(() => {
-    if ($params.id) {
+    if ($params.id && $mitra) {
       (async function fetchData() {
         try {
           nprogress.start();
@@ -179,7 +175,8 @@ export default function Profil() {
         //
       })();
     }
-  }, []);
+    // console.log($params.id, $mitra);
+  }, [$mitra, $params]);
 
   return (
     <>
@@ -188,11 +185,11 @@ export default function Profil() {
         <Flex justify="space-between" align="center">
           <div>
             <Title order={2}>
-              {$params.id ? "Perbarui Menu" : "Tambah Menu"}
+              {$params.id ? "Update Menu" : "Tambah Menu"}
             </Title>
             {/* <Text>alif@hayokerja.com</Text> */}
           </div>
-          <Button onClick={() => $navigate("/admin")}>Kembali</Button>
+          <Button onClick={() => $navigate(-1)}>Kembali</Button>
         </Flex>
         <br />
         <Grid direction="column" py=".5rem" my="0" gutter="xl" justify="center">
@@ -218,34 +215,19 @@ export default function Profil() {
           </Grid.Col>
           <Grid.Col span={$isMobile ? 12 : "auto"}>
             <form onSubmit={$form.onSubmit($onSubmit)}>
-              {/* <TextInput
-                label="Mitra/Resotran"
-                type="text"
-                placeholder={users?.name || "Tentukan Mitra/Restoran"}
-                {...$form.getInputProps("name")}
-                rightSection={
-                  <ActionIcon onClick={() => $navigate("/")}>
-                    <i className="ri-add-circle-line ri-xl"></i>
-                  </ActionIcon>
-                }
-              /> */}
               <Select
+                disabled
                 withAsterisk
-                data={dataMitra || []}
+                data={[]}
                 label="Pilih Mitra"
+                value={$mitra.id}
                 searchable
                 clearable
                 placeholder={
                   menu?.mitra ||
+                  $mitra.name ||
                   "Tentukan satu mitra (Klik Enter untuk mencari)"
                 }
-                onChange={(payload) => $form.setFieldValue("mitra_id", payload)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    $onSearchMitra(e);
-                  }
-                }}
-                {...$form.getInputProps("mitra_id")}
               />
               <TextInput
                 mt="md"

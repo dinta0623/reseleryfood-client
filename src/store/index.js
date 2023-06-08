@@ -1,5 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { UserSlice } from "./UserSlice";
+import { MitraSlice } from "./MitraSlice";
 
 //compare with combine reducers, this does it automatically.
 export const store = configureStore({
@@ -9,5 +10,6 @@ export const store = configureStore({
     }),
   reducer: {
     user: UserSlice.reducer,
+    mitra: MitraSlice.reducer,
   },
 });

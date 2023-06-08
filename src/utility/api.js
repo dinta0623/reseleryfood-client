@@ -54,10 +54,10 @@ useApi.interceptors.response.use(
       );
     }
 
-    if (error.response && error.response.status === 404) {
-      location.href = "*";
-      return Promise.reject(error?.response);
-    }
+    // if (error.response && error.response.status === 404) {
+    //   location.href = "*";
+    //   return Promise.reject(error?.response);
+    // }
 
     if (
       error.response &&
@@ -67,7 +67,6 @@ useApi.interceptors.response.use(
       originalRequest._retry = true;
       const token = async () => {
         let token = await useStorage("credentials");
-        // console.log("regenerate", token);
         if (token) {
           token = token.refresh_token;
           const { data } = await retry

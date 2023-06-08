@@ -67,6 +67,15 @@ export default function Mitra() {
                     Edit
                   </Button>
                 </Flex>
+                <br />
+                <Text>
+                  <strong>Alamat :</strong> {mt.address}
+                </Text>
+                <iframe
+                  width="100%"
+                  height="150"
+                  src={`https://maps.google.com/maps?q=${mt.lat},${mt.lng}&z=15&output=embed`}
+                ></iframe>
               </Paper>
             ))}
             <br />

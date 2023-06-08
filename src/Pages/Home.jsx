@@ -40,19 +40,6 @@ const mockdata = [
 ];
 
 const useStyles = createStyles((theme) => ({
-  navbar: {
-    background: "white",
-    borderBottom: ".05rem",
-    borderBottomColor: theme.colors.gray[2],
-    borderBottomStyle: "solid",
-  },
-  footer: {
-    padding: "2rem 0",
-    background: theme.colors.brand[5],
-    borderTop: ".05rem",
-    borderTopColor: theme.colors.gray[2],
-    borderTopStyle: "solid",
-  },
   title: {
     fontSize: rem(34),
     fontWeight: 900,
@@ -138,7 +125,6 @@ const Home = (props) => {
   return (
     <>
       <div className="dotted">
-        <Navbar />
         <br />
         <AtomsContainer>
           <AspectRatio ratio={$isMobile ? 1 : 16 / 6}>
@@ -210,37 +196,6 @@ const Home = (props) => {
           {features}
         </SimpleGrid>
       </AtomsContainer>
-
-      <br />
-      <br />
-
-      <footer className={classes.footer}>
-        <AtomsContainer>
-          <Grid direction="column" grow py=".5rem" my="0">
-            <Grid.Col span={$isMobile ? 12 : "auto"}>
-              <Flex
-                gap="xs"
-                justify={$isMobile ? "center" : "flex-start"}
-                align="center"
-                direction="row"
-                wrap="wrap"
-              >
-                <Image width={150} fit="contain" src="/logo.png" />
-              </Flex>
-            </Grid.Col>
-            <Grid.Col span={$isMobile ? 12 : "auto"}>
-              <Flex
-                gap="xs"
-                justify={$isMobile ? "center" : "flex-end"}
-                align="center"
-                style={{ height: "100%" }}
-              >
-                <Text color="white">Copyright @ 2023</Text>
-              </Flex>
-            </Grid.Col>
-          </Grid>
-        </AtomsContainer>
-      </footer>
     </>
   );
 };

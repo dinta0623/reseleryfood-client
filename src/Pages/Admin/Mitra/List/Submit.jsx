@@ -28,8 +28,8 @@ export default function Profil() {
   const $navigate = useNavigate();
   const $isMobile = useMediaQuery("(max-width: 80em)");
 
-  const [mainLoading, setMainLoading] = useState(false);
-  const [dataPIC, setDataPIC] = useState(false);
+  const [mitra, setMitra] = useState(null);
+  const [dataPIC, setDataPIC] = useState(null);
   const [address, setAddress] = useState(null);
   const [isMapMarker, { open: setMapMarkerOpen, close: setMapMarkerClose }] =
     useDisclosure(false);
@@ -129,18 +129,24 @@ export default function Profil() {
     try {
       nprogress.start();
       if ($form.isValid() && address?.pos?.length > 0) {
-        const resp = await useApi.post("/mitra", {
+        const body = {
           ...payload,
           user_id: payload.pic,
           lat: address.pos[0],
           lng: address.pos[1],
           logo: image?.url,
-        });
-        console.log(resp);
-        // // setUsers((state) => ({ ...state, ...resp.result }));
+        };
+        if ($params.id) {
+          await useApi
+            .put("/mitra", { id: $params.id, ...body })
+            .then((resp) => setMitra(resp.result));
+        } else {
+          await useApi.post("/mitra", body);
+        }
+
         showNotification({
           title: "Berhasil",
-          message: "Berhasil memperbarui data Anda",
+          message: "Berhasil menyimpan data Mitra",
           top: true,
         });
         $form.reset();
@@ -149,7 +155,7 @@ export default function Profil() {
       console.log(error);
       showNotification({
         title: "Gagal",
-        message: "Terdapat kesalahan ketika memperbarui biodata",
+        message: "Terdapat kesalahan ketika menyimpan data",
         top: true,
         autoClose: 2000,
         color: "red",
@@ -159,6 +165,21 @@ export default function Profil() {
       nprogress.complete();
     }
   };
+
+  useEffect(() => {
+    if ($params.id) {
+      (async function fetchData() {
+        try {
+          nprogress.start();
+          const $resp = await useApi.get(`/mitra/${$params.id}`);
+          setMitra($resp.result);
+        } finally {
+          setTimeout(() => nprogress.complete(), 2000);
+        }
+        //
+      })();
+    }
+  }, []);
 
   return (
     <>
@@ -171,7 +192,9 @@ export default function Profil() {
         <br />
         <Flex justify="space-between" align="center">
           <div>
-            <Title order={2}>Daftarkan Mitra Resto</Title>
+            <Title order={2}>
+              {mitra ? `Perbarui ${mitra.name}` : "Daftarkan Mitra Resto"}
+            </Title>
             {/* <Text>alif@hayokerja.com</Text> */}
           </div>
           <Button onClick={() => $navigate(-1)}>Kembali</Button>
@@ -185,7 +208,7 @@ export default function Profil() {
               style={{
                 borderRadius: "50%",
               }}
-              src={image?.url}
+              src={image?.url || mitra?.logo}
               alt="Random image"
               withPlaceholder
             />
@@ -203,7 +226,7 @@ export default function Profil() {
               <TextInput
                 label="Nama Restoran"
                 type="text"
-                placeholder={"Tuliskan Nama"}
+                placeholder={mitra?.name || "Tuliskan Nama"}
                 {...$form.getInputProps("name")}
               />
               <TextInput
@@ -212,6 +235,7 @@ export default function Profil() {
                 label="Alamat Restoran"
                 type="text"
                 placeholder={
+                  mitra?.address ||
                   "Pilih alamat terlebih dahulu -> (Klik icon pada kolom ini)"
                 }
                 {...$form.getInputProps("address")}
@@ -225,7 +249,7 @@ export default function Profil() {
                 mt="md"
                 label="Nomor Telepon"
                 type="text"
-                placeholder={"Tuliskan Nomor"}
+                placeholder={mitra?.phone || "Tuliskan Nomor"}
                 {...$form.getInputProps("phone")}
               />
               {/* <TextInput
@@ -241,7 +265,10 @@ export default function Profil() {
                 label="Pilih PIC"
                 searchable
                 clearable
-                placeholder="Tentukan satu PIC mitra (Klik Enter untuk mencari)"
+                placeholder={
+                  mitra?.pic ||
+                  "Tentukan satu PIC mitra (Klik Enter untuk mencari)"
+                }
                 onChange={(payload) => $form.setFieldValue("pic", payload)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
@@ -256,6 +283,29 @@ export default function Profil() {
             </form>
           </Grid.Col>
         </Grid>
+        {((mitra?.lat && mitra?.lng) ||
+          (address?.pos?.[0] && address?.pos?.[1])) && (
+          <div>
+            <br />
+            <Text>
+              <strong>Alamat :</strong>{" "}
+              {mitra?.address || address?.payload?.display_name}
+            </Text>
+            <br />
+            <iframe
+              width="100%"
+              height="250"
+              frameborder="0"
+              marginheight="0"
+              marginwidth="0"
+              src={`https://maps.google.com/maps?q=${
+                mitra?.lat || address?.pos?.[0]
+              },${mitra?.lng || address?.pos?.[1]}&z=15&output=embed`}
+            ></iframe>
+            <br />
+            <br />
+          </div>
+        )}
       </AtomsContainer>
     </>
   );
