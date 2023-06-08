@@ -36,10 +36,7 @@ export default function Profil() {
   }, []);
   return (
     <>
-      <Navbar />
-      <br />
-
-      <AtomsContainer>
+      <AtomsContainer mt="lg">
         <Title order={1}>Resto {$mitra.name}</Title>
         <br />
         <Tabs value={activeTab} onTabChange={setActiveTab}>

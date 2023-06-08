@@ -9,7 +9,7 @@ import Profil from "./Pages/Profil/Index";
 // admin page
 import Admin from "./Pages/Admin/Index";
 import EditUserAdmin from "./Pages/Admin/Users/Edit";
-import SubmitMitra from "./Pages/Admin/Mitra/List/Submit";
+import SubmitMitraAdmin from "./Pages/Admin/Mitra/List/Submit";
 import SubmitMenu from "./Pages/Admin/Mitra/Menu/Submit";
 import SubmitMenuResto from "./Pages/Resto/Menu/Submit";
 import Resto from "./Pages/Resto/Index";
@@ -53,40 +53,6 @@ export const router = createBrowserRouter([
   // admin
 
   // {
-  //   path: "/admin/mitra/daftar",
-  //   element: (
-  //     <Guard
-  //       isRouteAccessible={(state) =>
-  //         state.user?.isLogged && state.user?.roles?.includes(ROLES.admin)
-  //       }
-  //       redirectRoute="/404"
-  //     >
-  //       <Navbar />
-  //       <SubmitMitra />
-  //     </Guard>
-  //   ),
-  //   meta: {
-  //     name: "admin",
-  //   },
-  // },
-  // {
-  //   path: "/admin/mitra/:id",
-  //   element: (
-  //     <Guard
-  //       isRouteAccessible={(state) =>
-  //         state.user?.isLogged && state.user?.roles?.includes(ROLES.admin)
-  //       }
-  //       redirectRoute="/404"
-  //     >
-  //       <Navbar />
-  //       <SubmitMitra />
-  //     </Guard>
-  //   ),
-  //   meta: {
-  //     name: "admin",
-  //   },
-  // },
-  // {
   //   path: "/admin/menu/daftar",
   //   element: (
   //     <Guard
@@ -121,26 +87,6 @@ export const router = createBrowserRouter([
   //   },
   // },
 
-  // {
-  //   path: "/resto",
-  //   element: (
-  //     <Guard
-  //       isRouteAccessible={(state) =>
-  //         state.user?.isLogged &&
-  //         state.user?.roles?.includes(ROLES.mitra) &&
-  //         state.user?.mitra_id
-  //       }
-  //       redirectRoute="/404"
-  //     >
-  //       <Resto />
-  //     </Guard>
-  //   ),
-  //   meta: {
-  //     name: "resto",
-  //     navigator: true,
-  //     roles: [ROLES.mitra],
-  //   },
-  // },
   // {
   //   path: "/resto/menu/daftar",
   //   element: (
@@ -209,6 +155,8 @@ export const router = createBrowserRouter([
       validate: ({ $state }) => !$state?.user?.isLogged,
     },
   },
+
+  // admin
   {
     path: "/admin",
     element: () => <Layout element={<Admin />} />,
@@ -228,6 +176,39 @@ export const router = createBrowserRouter([
         $state?.user?.isLogged && $state?.user?.roles?.includes(ROLES.admin),
     },
   },
+  {
+    path: "/admin/mitra/daftar",
+    element: () => <Layout element={<SubmitMitraAdmin />} />,
+    meta: {
+      name: "Admin - Tambah Mitra",
+      validate: ({ $state }) =>
+        $state?.user?.isLogged && $state?.user?.roles?.includes(ROLES.admin),
+    },
+  },
+  {
+    path: "/admin/mitra/:id",
+    element: () => <Layout element={<SubmitMitraAdmin />} />,
+    meta: {
+      name: "Admin - Edit Mitra",
+      validate: ({ $state }) =>
+        $state?.user?.isLogged && $state?.user?.roles?.includes(ROLES.admin),
+    },
+  },
+
+  // mitra/resto
+  {
+    path: "/resto",
+    element: () => <Layout element={<Resto />} />,
+    meta: {
+      name: "Resto/Mitra",
+      navigator: true,
+      validate: ({ $state }) =>
+        $state?.user?.isLogged &&
+        $state?.user?.roles?.includes(ROLES.mitra) &&
+        $state?.mitra?.id,
+    },
+  },
+
   {
     path: "/daftar",
     element: () => <Daftar />,

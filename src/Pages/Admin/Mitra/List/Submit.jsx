@@ -21,6 +21,7 @@ import { useMediaQuery, useDisclosure } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
 import { AtomsContainer } from "@/Components/Atoms";
 import { useForm } from "@mantine/form";
+import blobToBase64 from "@/utility/blobToBase64";
 import { useSelector, useDispatch } from "react-redux";
 
 export default function Profil() {
@@ -56,27 +57,19 @@ export default function Profil() {
 
   const [image, setImage] = useState(null);
 
-  const blobToBase64 = (blob) => {
-    return new Promise((resolve, _) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
-  };
-
   const $onSearchUsers = async (payload) => {
     nprogress.start();
     const search = payload.currentTarget.value;
 
-    const resp = await useApi.get("/users", {
-      ...(search
-        ? {
-            params: {
-              name: `'%${search}%'`,
-            },
-          }
-        : {}),
-    });
+    let $query =
+      "SELECT * from users WHERE roles NOT LIKE '%admin%' AND roles NOT LIKE '%mitra%' AND roles NOT LIKE '%kurir%' ";
+
+    if (search) {
+      $query += `AND users.name LIKE '%${search}%' `;
+    }
+
+    const resp = await useApi.get(`/users/q/${encodeURIComponent($query)}`);
+    // console.log("hasilnya", resp?.result);
 
     if (resp?.result?.length > 0) {
       setDataPIC(
@@ -137,6 +130,14 @@ export default function Profil() {
           logo: image?.url,
         };
         if ($params.id) {
+          const last_user_id = mitra.user_id;
+          if (last_user_id != body.user_id) {
+            // need to change last_user id into 'customer'
+            await useApi.put("/users", {
+              id: last_user_id,
+              roles: ["customer"],
+            });
+          }
           await useApi
             .put("/mitra", { id: $params.id, ...body })
             .then((resp) => setMitra(resp.result));

@@ -56,7 +56,7 @@ export default function Navbar() {
         )
       );
     // console.log(ROLES.mitra, $user);
-  }, [$location, $user.isLogged]);
+  }, [$location, $user, $state.mitra]);
 
   return (
     <nav className={classes.navbar}>
