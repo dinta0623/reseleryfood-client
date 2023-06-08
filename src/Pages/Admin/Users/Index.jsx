@@ -11,12 +11,15 @@ import { useEffect, useState } from "react";
 import { useApi } from "@/utility/api";
 import { useMediaQuery } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 export default function Users() {
   const $navigate = useNavigate();
+  const $admin = useSelector((state) => state.user);
   const $isMobile = useMediaQuery("(max-width: 80em)");
   const [users, setUsers] = useState(null);
   const [mainLoading, setMainLoading] = useState(false);
+
   useEffect(() => {
     (async function fetchData() {
       try {
@@ -57,11 +60,12 @@ export default function Users() {
                   </Text>
                 </div>
                 <Button
+                  disabled={Boolean($admin.id === user.id)}
                   fullWidth={$isMobile}
                   ml="auto"
                   onClick={() => $navigate(`/admin/user/${user.id}`)}
                 >
-                  Edit
+                  Edit Pengguna
                 </Button>
               </Flex>
             </Paper>
