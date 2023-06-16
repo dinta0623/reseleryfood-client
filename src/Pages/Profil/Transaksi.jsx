@@ -7,26 +7,40 @@ import {
   Button,
   Title,
   Pagination,
+  Accordion,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useApi } from "@/utility/api";
 import { useMediaQuery } from "@mantine/hooks";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { $addSeparator } from "../../utility/separator";
+import { statusTransaksi } from "../../utility/types";
 
-export default function Users() {
+export default function RiwayatTransaksi() {
   const $navigate = useNavigate();
   const $isMobile = useMediaQuery("(max-width: 80em)");
-  const [users, setUsers] = useState(null);
+  const $user = useSelector((state) => state?.user);
   const [mainLoading, setMainLoading] = useState(false);
+  const [transaction, setTransaction] = useState(null);
+
   useEffect(() => {
     (async function fetchData() {
       try {
         setMainLoading(true);
-        const $resp = await useApi.get(`/users`);
-        setUsers($resp.result);
+        if ($user.id) {
+          const $sql = `SELECT * FROM transaksi WHERE user_id = '${$user.id}'`;
+          const $resp = await useApi.get(`/transaksi/q/${$sql}`);
+          console.log($resp);
+          if ($resp?.success) {
+            setTransaction($resp?.result);
+          }
+          // setUsers($resp.result);
+        }
       } finally {
         setMainLoading(false);
       }
+
       //
     })();
   }, []);
@@ -34,34 +48,57 @@ export default function Users() {
     <>
       <br />
       <Title order={2}>Riwayat Transaksi</Title>
-
-      {!mainLoading && users ? (
+      {!mainLoading && transaction ? (
         <>
-          {users.map((user, idx) => (
+          {transaction.map((_item, idx) => (
             <Paper key={idx} p="md" mt="md" shadow="sm" radius="md">
               <Flex
                 gap={25}
                 direction={$isMobile ? "column" : "row"}
                 align={$isMobile ? "flex-start" : "center"}
               >
-                {/* <Avatar radius="xl" size="lg" src={user.avatar} /> */}
+                {/* <Avatar radius="xl" size="lg" src={_item.avatar} /> */}
                 <div>
-                  <Text weight={700}>Transaksi Tanggal 30-05-2023</Text>
-                  <Text color="blue">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Neque impedit eaque explicabo odit. Odit voluptatibus
-                  </Text>
+                  {_item.isMenu ? (
+                    <>
+                      <Text weight={700} color="brand">
+                        Pesanan {_item.no}
+                      </Text>
+                      <Text mt="sm">
+                        Ongkir : {$addSeparator(_item.ongkir)}
+                      </Text>
+                      <Text>Platform : {$addSeparator(_item.fee)}</Text>
+                      <Text weight={700}>
+                        Total : {$addSeparator(_item.total)}
+                      </Text>
+                    </>
+                  ) : (
+                    <>
+                      <Text weight={700} color="brand">
+                        Reservasi {_item.no}
+                      </Text>
+                      <Text>
+                        <strong>Dari Tanggal :</strong> {_item.date}{" "}
+                        <strong>Sampai</strong> {_item.duedate}
+                      </Text>
+                    </>
+                  )}
                 </div>
                 <Group ml="auto">
-                  <Button
-                    fullWidth={$isMobile}
-                    ml="auto"
-                    onClick={() => $navigate(`/admin/user/${user.id}`)}
+                  <Text
+                    color="white"
+                    bg={
+                      _item.status == statusTransaksi.done ? "brand" : "orange"
+                    }
+                    px={10}
                   >
-                    Detail
-                  </Button>
+                    Status : {_item.status}
+                  </Text>
                 </Group>
               </Flex>
+              <Button mt="md" fullWidth={$isMobile} ml="auto">
+                Detail
+              </Button>
             </Paper>
           ))}
           <br />

@@ -18,6 +18,7 @@ import { AtomsContainer } from "@/Components/Atoms";
 import { useMediaQuery, useHover, useDisclosure } from "@mantine/hooks";
 import { nprogress } from "@mantine/nprogress";
 import { useApi } from "@/Utility/api";
+import { ROLES } from "@/router";
 
 export default function Daftar() {
   const navigate = useNavigate();
@@ -66,6 +67,7 @@ export default function Daftar() {
         // }
         await useApi.post("/users", {
           ...payload,
+          roles: [ROLES.customer],
         });
 
         showNotification({

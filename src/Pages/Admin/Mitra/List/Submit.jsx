@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useApi } from "@/utility/api";
-import AddMarker from "@/Components/Organism/Mitra/AddMarker";
+import AddMarker from "@/Components/Molecules/AddMarker";
 
 import {
   Tabs,
@@ -72,6 +72,11 @@ export default function Profil() {
     // console.log("hasilnya", resp?.result);
 
     if (resp?.result?.length > 0) {
+      if (mitra)
+        resp.result.push({
+          id: mitra.user_id,
+          name: mitra.pic,
+        });
       setDataPIC(
         resp.result.map((item) => ({
           value: item.id,
@@ -153,7 +158,7 @@ export default function Profil() {
         $form.reset();
       }
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       showNotification({
         title: "Gagal",
         message: "Terdapat kesalahan ketika menyimpan data",
@@ -296,9 +301,6 @@ export default function Profil() {
             <iframe
               width="100%"
               height="250"
-              frameborder="0"
-              marginheight="0"
-              marginwidth="0"
               src={`https://maps.google.com/maps?q=${
                 mitra?.lat || address?.pos?.[0]
               },${mitra?.lng || address?.pos?.[1]}&z=15&output=embed`}

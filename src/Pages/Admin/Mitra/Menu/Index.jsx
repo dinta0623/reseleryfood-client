@@ -141,11 +141,19 @@ export default function Menu() {
                       <Text size="xs">Stok : {item.qty || 0}</Text>
                     </div>
                   </Group>
-                  <br />
+
                   <Text size="sm" style={{ lineHeight: 1.5 }}>
                     {item.desc || "Tidak ada keterangan"}
                   </Text>
                   <br />
+                  <Text
+                    underline
+                    color="blue"
+                    size="sm"
+                    style={{ lineHeight: 1.5 }}
+                  >
+                    #{item.category || "makanan"}
+                  </Text>
                   {/* <div>
                       <Button
                         style={{ marginTop: "auto !important" }}

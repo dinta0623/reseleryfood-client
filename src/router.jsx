@@ -2,15 +2,19 @@ import { createBrowserRouter, Route, Navigate } from "react-router-dom";
 import Home from "./Pages/Home";
 import Daftar from "./Pages/Authentication/Daftar";
 import NotMatch from "./Pages/Notmatch";
-import Rekomendasi from "./Pages/Rekomendasi";
+import Rekomendasi from "./Pages/Rekomendasi/Index";
+import CariMenu from "./Pages/Rekomendasi/Detail/CariMenu";
 import Masuk from "./Pages/Authentication/Masuk";
 import Profil from "./Pages/Profil/Index";
+import Keranjang from "./Pages/Keranjang/Index";
 
 // admin page
 import Admin from "./Pages/Admin/Index";
-import EditUserAdmin from "./Pages/Admin/Users/Edit";
+import EditUserAdmin from "./Pages/Admin/Users/Submit";
 import SubmitMitraAdmin from "./Pages/Admin/Mitra/List/Submit";
-import SubmitMenu from "./Pages/Admin/Mitra/Menu/Submit";
+import SubmitMenuAdmin from "./Pages/Admin/Mitra/Menu/Submit";
+
+// resto page
 import SubmitMenuResto from "./Pages/Resto/Menu/Submit";
 import Resto from "./Pages/Resto/Index";
 import { useSelector } from "react-redux";
@@ -22,6 +26,8 @@ import Layout from "./Components/Organism/Layout";
 export const ROLES = {
   admin: "admin",
   mitra: "mitra",
+  customer: "customer",
+  kurir: "kurir",
 };
 
 export const router = createBrowserRouter([
@@ -52,23 +58,6 @@ export const router = createBrowserRouter([
   // },
   // admin
 
-  // {
-  //   path: "/admin/menu/daftar",
-  //   element: (
-  //     <Guard
-  //       isRouteAccessible={(state) =>
-  //         state.user?.isLogged && state.user?.roles?.includes(ROLES.admin)
-  //       }
-  //       redirectRoute="/404"
-  //     >
-  //       <Navbar />
-  //       <SubmitMenu />
-  //     </Guard>
-  //   ),
-  //   meta: {
-  //     name: "admin",
-  //   },
-  // },
   // {
   //   path: "/admin/menu/:id",
   //   element: (
@@ -139,6 +128,13 @@ export const router = createBrowserRouter([
     },
   },
   {
+    path: "/rekomendasi/menu",
+    element: () => <Layout element={<CariMenu />} />,
+    meta: {
+      name: "Rekomendas Menu",
+    },
+  },
+  {
     path: "/tentang",
     element: () => <Layout element={<Home />} />,
     meta: {
@@ -153,6 +149,17 @@ export const router = createBrowserRouter([
       name: "Masuk",
       redirectRoute: "/",
       validate: ({ $state }) => !$state?.user?.isLogged,
+    },
+  },
+
+  {
+    path: "/keranjang",
+    element: () => <Layout element={<Keranjang />} />,
+    meta: {
+      name: "Keranjang Anda",
+      redirectRoute: "/",
+      validate: ({ $state }) =>
+        $state?.user?.isLogged && $state?.user?.roles?.includes(ROLES.customer),
     },
   },
 
@@ -190,6 +197,15 @@ export const router = createBrowserRouter([
     element: () => <Layout element={<SubmitMitraAdmin />} />,
     meta: {
       name: "Admin - Edit Mitra",
+      validate: ({ $state }) =>
+        $state?.user?.isLogged && $state?.user?.roles?.includes(ROLES.admin),
+    },
+  },
+  {
+    path: "/admin/menu/daftar",
+    element: () => <Layout element={<SubmitMenuAdmin />} />,
+    meta: {
+      name: "Admin - Tambah Menu",
       validate: ({ $state }) =>
         $state?.user?.isLogged && $state?.user?.roles?.includes(ROLES.admin),
     },

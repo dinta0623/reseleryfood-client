@@ -79,7 +79,7 @@ export default function Masuk(props) {
       }
       $form.reset();
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       if (error?.data?.message && typeof error?.data?.message == "object") {
         Object.keys(error?.data?.message).forEach((key) => {
           $form.setFieldError(key, error?.data?.message[key]);

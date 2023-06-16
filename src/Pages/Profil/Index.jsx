@@ -7,11 +7,11 @@ import RiwayatTransaksi from "./Transaksi";
 import Keranjang from "./Keranjang";
 
 export default function Profil() {
-  const [state, setState] = useState();
+  const [activeTab, setActiveTab] = useState("biodata");
   return (
     <>
       <AtomsContainer mt="lg">
-        <Tabs defaultValue="biodata">
+        <Tabs value={activeTab} onTabChange={setActiveTab}>
           <Tabs.List>
             <Tabs.Tab
               value="biodata"
@@ -23,13 +23,7 @@ export default function Profil() {
               value="transaksi"
               icon={<i className="ri-bill-fill ri-lg"></i>}
             >
-              Riwayat Transaksi
-            </Tabs.Tab>
-            <Tabs.Tab
-              value="keranjang"
-              icon={<i className="ri-store-3-fill ri-lg"></i>}
-            >
-              Keranjang Anda
+              Riwayat Pembelian
             </Tabs.Tab>
             <Tabs.Tab
               value="bantuan"
@@ -40,21 +34,30 @@ export default function Profil() {
           </Tabs.List>
 
           <Tabs.Panel value="biodata" pt="xs">
-            <ItemBiodata></ItemBiodata>
+            {activeTab == "biodata" && (
+              <>
+                <ItemBiodata></ItemBiodata>
+              </>
+            )}
           </Tabs.Panel>
 
           <Tabs.Panel value="transaksi" pt="xs">
-            <RiwayatTransaksi></RiwayatTransaksi>
+            {activeTab == "transaksi" && (
+              <>
+                <RiwayatTransaksi></RiwayatTransaksi>
+              </>
+            )}
           </Tabs.Panel>
 
-          <Tabs.Panel value="keranjang" pt="xs">
-            <Keranjang></Keranjang>
-          </Tabs.Panel>
           <Tabs.Panel value="bantuan" pt="xs">
-            <Text>email kami di :</Text>
-            <Text underline color="blue">
-              id@reseleryfood.com
-            </Text>
+            {activeTab == "bantuan" && (
+              <>
+                <Text>email kami di :</Text>
+                <Text underline color="blue">
+                  id@reseleryfood.com
+                </Text>
+              </>
+            )}
           </Tabs.Panel>
         </Tabs>
       </AtomsContainer>

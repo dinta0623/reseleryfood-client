@@ -50,6 +50,7 @@ const MapContent = ({ currMarker, setMainMarker }) => {
 };
 
 export default function AddMarker({
+  title: titleMarker,
   isMapMarker,
   setMapMarkerClose,
   setAddress,
@@ -98,7 +99,7 @@ export default function AddMarker({
       <Modal
         opened={isMapMarker}
         onClose={setMapMarkerClose}
-        title="Set Poin Lokasi Resto"
+        title={titleMarker || "Set Poin Lokasi Resto"}
         size={$isMobile ? "100%" : "70%"}
         overlayProps={{
           opacity: 0.55,

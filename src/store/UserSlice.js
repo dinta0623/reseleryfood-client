@@ -6,6 +6,7 @@ export const name = "user";
 
 export const logoutUser = createAsyncThunk(`${name}/logoutUser`, async () => {
   await useStorage("credentials", null);
+  // await useStorage("cart", null);
   return true;
 });
 

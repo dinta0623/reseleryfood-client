@@ -32,7 +32,7 @@ export default function Users() {
           setMainLoading(true);
           const $query = `SELECT * FROM menu WHERE mitra_id = '${$mitra.id}'`;
           const $resp = await useApi.get(`/menu/q/${$query}`);
-          setMenu($resp.result);
+          if ($resp.success) setMenu($resp.result);
           console.log(menu);
         } catch (error) {
           // console.log(error);

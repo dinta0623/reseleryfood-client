@@ -112,9 +112,9 @@ export default function Profil() {
         autoClose: 2000,
         color: "red",
       });
+    } finally {
+      nprogress.complete();
     }
-
-    nprogress.complete();
   };
 
   const $onSubmit = async (payload) => {

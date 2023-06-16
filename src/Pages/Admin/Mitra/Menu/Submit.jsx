@@ -20,6 +20,7 @@ import { useMediaQuery, useHover, useDisclosure } from "@mantine/hooks";
 import { showNotification } from "@mantine/notifications";
 import { AtomsContainer } from "@/Components/Atoms";
 import { useForm } from "@mantine/form";
+import blobToBase64 from "@/utility/blobToBase64";
 import { useSelector, useDispatch } from "react-redux";
 
 export default function Profil() {
@@ -30,6 +31,7 @@ export default function Profil() {
 
   const [menu, setMenu] = useState(null);
   const [dataMitra, setDataMitra] = useState(null);
+  const [dataCategory, setDataCategory] = useState(null);
   const [users, setUsers] = useState(null);
   const [mainLoading, setMainLoading] = useState(false);
 
@@ -40,6 +42,7 @@ export default function Profil() {
     price: 0,
     // status: "",
     desc: "",
+    category: "",
   };
   const $form = useForm({
     validateInputOnChange: true,
@@ -51,18 +54,11 @@ export default function Profil() {
       price: (value) => (Number(value) > 0 ? null : "Pastikan harga terisi"),
       mitra_id: (value) =>
         value ? null : "Pastikan mitra/resto terpilih satu",
+      category: (value) => (value ? null : "Pastikan kategori terisi"),
     },
   });
 
   const [image, setImage] = useState(null);
-
-  const blobToBase64 = (blob) => {
-    return new Promise((resolve, _) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result);
-      reader.readAsDataURL(blob);
-    });
-  };
 
   const $onUploadAvatar = async (file) => {
     nprogress.start();
@@ -101,10 +97,11 @@ export default function Profil() {
       if ($form.isValid()) {
         const body = {
           ...payload,
+          category: payload?.category?.trim()?.toLowerCase(),
           picture: image?.url,
         };
+        // console.log({ id: $params.id, ...body });
         if ($params.id) {
-          console.log({ id: $params.id, ...body });
           await useApi
             .put("/menu", { id: $params.id, ...body })
             .then((resp) => setMenu(resp.result));
@@ -155,6 +152,21 @@ export default function Profil() {
           label: item.name,
         }))
       );
+    }
+
+    nprogress.complete();
+  };
+
+  const $onSearchCategory = async (payload) => {
+    nprogress.start();
+    const search = payload.currentTarget.value;
+    const $query =
+      "SELECT menu.category, COUNT(*) as total FROM `menu` GROUP BY category ORDER BY total DESC";
+
+    const resp = await useApi.get(`/menu/q/${encodeURIComponent($query)}`);
+
+    if (resp?.result?.length > 0) {
+      setDataCategory(resp.result.map((item) => item.category));
     }
 
     nprogress.complete();
@@ -279,6 +291,31 @@ export default function Profil() {
                 placeholder={menu?.desc || "Keterangan dari menu"}
                 label="Keterangan"
                 {...$form.getInputProps("desc")}
+              />
+              <Select
+                mt="md"
+                data={dataCategory || []}
+                label="Pilih atau Tambah Kategori"
+                searchable
+                clearable
+                placeholder={
+                  menu?.category ||
+                  "Tentukan kategori (Klik Enter untuk mencari)"
+                }
+                onChange={(payload) => $form.setFieldValue("category", payload)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    $onSearchCategory(e);
+                  }
+                }}
+                creatable
+                getCreateLabel={(query) => `+ Tambah Kategori ${query}`}
+                onCreate={(query) => {
+                  const item = { value: query, label: query };
+                  setDataCategory((current) => [...current, query]);
+                  return item;
+                }}
+                {...$form.getInputProps("category")}
               />
               {/* <TextInput
                 mt="md"

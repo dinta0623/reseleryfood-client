@@ -50,7 +50,12 @@ export default function Mitra() {
                 >
                   <Avatar radius="xl" size="lg" src={mt.logo} />
                   <div>
-                    <Text weight={700}>{mt.name}</Text>
+                    <Text weight={700}>
+                      {mt.name}{" "}
+                      {mt.disable && (
+                        <span style={{ color: "red" }}>(Nonaktif)</span>
+                      )}
+                    </Text>
                     <Text underline color="blue">
                       {mt.pic} sebagai PIC
                     </Text>

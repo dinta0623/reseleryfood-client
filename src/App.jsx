@@ -8,9 +8,12 @@ import { useApi } from "@/utility/api";
 import { useStorage, useJwtDecode } from "@/utility/storage";
 import { SET_USER, RESET_USER } from "@/store/UserSlice";
 import { SET_MITRA } from "@/store/MitraSlice";
+import { setCartPersist, name as CartName } from "@/store/CartSlice";
 import { useSelector, useDispatch } from "react-redux";
 import { router } from "@/router";
 import Guard from "./Components/Organism/Guard";
+import { SET_CART } from "./store/CartSlice";
+import { nprogress } from "@mantine/nprogress";
 
 function App() {
   const $state = useSelector((state) => state);
@@ -27,8 +30,9 @@ function App() {
       const $resp = await useApi.get(`/users/${user?.payload?.id}`);
       $dispatch(
         SET_USER({
-          ...$resp?.result,
           ...user?.payload, // mitra_id here
+          ...$resp?.result,
+          mitra_id: user?.mitra_id,
           isLogged: true,
         })
       );
@@ -38,6 +42,23 @@ function App() {
     if ($user.roles?.includes("mitra")) {
       const $resp = await useApi.get(`/mitra/${$user.mitra_id}`);
       $dispatch(SET_MITRA($resp.result));
+    }
+    await fetchCart();
+  }
+
+  async function fetchCart() {
+    nprogress.start();
+    try {
+      const $cart = await useStorage(CartName);
+      if ($cart) {
+        $dispatch(
+          SET_CART({
+            ...$cart,
+          })
+        );
+      }
+    } finally {
+      nprogress.complete();
     }
   }
   useLayoutEffect(() => {
