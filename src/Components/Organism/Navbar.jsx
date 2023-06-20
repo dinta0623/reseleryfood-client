@@ -64,7 +64,7 @@ export default function Navbar() {
 
   return (
     <nav className={classes.navbar}>
-      <AtomsContainer>
+      <AtomsContainer className="no-print">
         <Grid grow py=".5rem" my="0">
           <Grid.Col span={$isMobile ? 6 : "auto"}>
             <Flex

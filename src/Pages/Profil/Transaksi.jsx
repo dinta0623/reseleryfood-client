@@ -7,7 +7,7 @@ import {
   Button,
   Title,
   Pagination,
-  Accordion,
+  Select,
 } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useApi } from "@/utility/api";
@@ -24,6 +24,22 @@ export default function RiwayatTransaksi() {
   const [mainLoading, setMainLoading] = useState(false);
   const [transaction, setTransaction] = useState(null);
 
+  const $changeFilter = async (status) => {
+    setMainLoading(true);
+    try {
+      if ($user.id) {
+        const $sql = `SELECT * FROM transaksi WHERE user_id = '${
+          $user.id
+        }' AND status LIKE '%${status || statusTransaksi.proses}%'`;
+        const $resp = await useApi.get(`/transaksi/q/${$sql}`);
+
+        setTransaction($resp?.result);
+      }
+    } finally {
+      setMainLoading(false);
+    }
+  };
+
   useEffect(() => {
     (async function fetchData() {
       try {
@@ -31,7 +47,6 @@ export default function RiwayatTransaksi() {
         if ($user.id) {
           const $sql = `SELECT * FROM transaksi WHERE user_id = '${$user.id}'`;
           const $resp = await useApi.get(`/transaksi/q/${$sql}`);
-          console.log($resp);
           if ($resp?.success) {
             setTransaction($resp?.result);
           }
@@ -47,8 +62,24 @@ export default function RiwayatTransaksi() {
   return (
     <>
       <br />
-      <Title order={2}>Riwayat Transaksi</Title>
-      {!mainLoading && transaction ? (
+      <Flex justify="space-between" align="center">
+        <Title order={2}>Riwayat Pembelian Anda</Title>
+
+        <Select
+          mt="md"
+          data={
+            Object.entries(statusTransaksi)?.map(([_key, _value]) => ({
+              label: _value.substring(0, 1).toUpperCase() + _value.substring(1),
+              value: _value,
+            })) || []
+          }
+          searchable
+          clearable
+          placeholder={"Filter Status"}
+          onChange={(payload) => $changeFilter(payload)}
+        />
+      </Flex>
+      {!mainLoading && transaction?.length > 0 ? (
         <>
           {transaction.map((_item, idx) => (
             <Paper key={idx} p="md" mt="md" shadow="sm" radius="md">
@@ -64,6 +95,9 @@ export default function RiwayatTransaksi() {
                       <Text weight={700} color="brand">
                         Pesanan {_item.no}
                       </Text>
+                      <Text underline color="brand">
+                        {_item.mitra?.name || "-"}
+                      </Text>
                       <Text mt="sm">
                         Ongkir : {$addSeparator(_item.ongkir)}
                       </Text>
@@ -76,6 +110,9 @@ export default function RiwayatTransaksi() {
                     <>
                       <Text weight={700} color="brand">
                         Reservasi {_item.no}
+                      </Text>
+                      <Text underline color="brand">
+                        {_item.mitra?.name || "-"}
                       </Text>
                       <Text>
                         <strong>Dari Tanggal :</strong> {_item.date}{" "}
@@ -96,7 +133,12 @@ export default function RiwayatTransaksi() {
                   </Text>
                 </Group>
               </Flex>
-              <Button mt="md" fullWidth={$isMobile} ml="auto">
+              <Button
+                onClick={() => $navigate("/transaksi/detail/" + _item.id)}
+                mt="md"
+                fullWidth={$isMobile}
+                ml="auto"
+              >
                 Detail
               </Button>
             </Paper>
@@ -104,8 +146,10 @@ export default function RiwayatTransaksi() {
           <br />
           <Pagination total={10} mt="xl" />
         </>
-      ) : (
+      ) : mainLoading ? (
         <Text mt="md">Loading...</Text>
+      ) : (
+        <Text mt="md">Tidak ada riwayat pembelian yang ditemukan</Text>
       )}
     </>
   );

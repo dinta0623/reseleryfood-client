@@ -21,7 +21,8 @@ export default function Users() {
     (async function fetchData() {
       try {
         setMainLoading(true);
-        const $resp = await useApi.get(`/users`);
+        const $sql = "SELECT * FROM users WHERE roles LIKE '%kurir%'";
+        const $resp = await useApi.get(`/users/q/${$sql}`);
         setUsers($resp.result);
       } finally {
         setMainLoading(false);
@@ -32,39 +33,47 @@ export default function Users() {
   return (
     <>
       <br />
-      <Title order={2}>Daftar Kurir</Title>
+      <Flex justify="space-between" align="center">
+        <Title order={2}>Daftar Kurir Resto</Title>
 
-      {!mainLoading && users ? (
+        {/* <Button onClick={() => $navigate("/admin/kurir/submit")}>
+          Tambah Kurir
+        </Button> */}
+      </Flex>
+
+      {!mainLoading && users?.length > 0 ? (
         <>
-          {users.map((user, idx) => (
+          {users.map((_user, idx) => (
             <Paper key={idx} p="md" mt="md" shadow="sm" radius="md">
               <Flex
                 gap={25}
                 direction={$isMobile ? "column" : "row"}
                 align={$isMobile ? "flex-start" : "center"}
               >
-                <Avatar radius="xl" size="lg" src="" />
+                <Avatar radius="xl" size="lg" src={_user.avatar} />
                 <div>
-                  <Text weight={700}>Kurir Pesanan ######</Text>
+                  <Text weight={700}>Kurir {_user.name}</Text>
                   <Text underline color="blue">
-                    Proses
+                    {_user.email}
                   </Text>
                 </div>
-                <Button
+                {/* <Button
                   fullWidth={$isMobile}
                   ml="auto"
-                  onClick={() => $navigate(`/admin/user/${user.id}`)}
+                  onClick={() => $navigate(`/admin/user/${_user.id}`)}
                 >
                   Update Status
-                </Button>
+                </Button> */}
               </Flex>
             </Paper>
           ))}
           <br />
           <Pagination total={10} mt="xl" />
         </>
-      ) : (
+      ) : mainLoading ? (
         <Text mt="md">Loading...</Text>
+      ) : (
+        <Text mt="md">Tidak ada kurir yang ditemukan</Text>
       )}
     </>
   );

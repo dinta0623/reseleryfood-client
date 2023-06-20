@@ -105,6 +105,7 @@ const Home = (props) => {
       </Text>
       <br />
       <Button
+        onClick={() => $navigate("/rekomendasi")}
         fullWidth={$isMobile ? true : false}
         compact
         variant="subtle"
@@ -154,6 +155,7 @@ const Home = (props) => {
                   </Text>
                   <br />
                   <Button
+                    onClick={() => $navigate("/rekomendasi")}
                     fullWidth={$isMobile ? true : false}
                     rightIcon={<i className="ri-arrow-right-line"></i>}
                   >

@@ -28,18 +28,20 @@ function App() {
       (payload?.access_token && useJwtDecode(payload?.access_token)) || null;
     if (payload?.access_token && payload?.refresh_token && user?.payload?.id) {
       const $resp = await useApi.get(`/users/${user?.payload?.id}`);
+      console.log(user?.payload);
       $dispatch(
         SET_USER({
           ...user?.payload, // mitra_id here
           ...$resp?.result,
-          mitra_id: user?.mitra_id,
+          mitra_id: user?.payload?.mitra_id,
           isLogged: true,
         })
       );
     } else {
       $dispatch(RESET_USER());
     }
-    if ($user.roles?.includes("mitra")) {
+
+    if ($user?.mitra_id) {
       const $resp = await useApi.get(`/mitra/${$user.mitra_id}`);
       $dispatch(SET_MITRA($resp.result));
     }

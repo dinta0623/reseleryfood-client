@@ -5,8 +5,11 @@ import Navbar from "@/Components/Organism/Navbar";
 import ItemBiodata from "./Biodata";
 import RiwayatTransaksi from "./Transaksi";
 import Keranjang from "./Keranjang";
+import { ROLES } from "../../router";
+import { useSelector } from "react-redux";
 
 export default function Profil() {
+  const $user = useSelector((state) => state?.user);
   const [activeTab, setActiveTab] = useState("biodata");
   return (
     <>
@@ -19,12 +22,15 @@ export default function Profil() {
             >
               Biodata Anda
             </Tabs.Tab>
-            <Tabs.Tab
-              value="transaksi"
-              icon={<i className="ri-bill-fill ri-lg"></i>}
-            >
-              Riwayat Pembelian
-            </Tabs.Tab>
+            {$user?.roles?.includes(ROLES.customer) && (
+              <Tabs.Tab
+                value="transaksi"
+                icon={<i className="ri-bill-fill ri-lg"></i>}
+              >
+                Riwayat Pembelian
+              </Tabs.Tab>
+            )}
+
             <Tabs.Tab
               value="bantuan"
               icon={<i className="ri-logout-circle-fill ri-lg"></i>}
@@ -41,13 +47,15 @@ export default function Profil() {
             )}
           </Tabs.Panel>
 
-          <Tabs.Panel value="transaksi" pt="xs">
-            {activeTab == "transaksi" && (
-              <>
-                <RiwayatTransaksi></RiwayatTransaksi>
-              </>
-            )}
-          </Tabs.Panel>
+          {$user?.roles?.includes(ROLES.customer) && (
+            <Tabs.Panel value="transaksi" pt="xs">
+              {activeTab == "transaksi" && (
+                <>
+                  <RiwayatTransaksi></RiwayatTransaksi>
+                </>
+              )}
+            </Tabs.Panel>
+          )}
 
           <Tabs.Panel value="bantuan" pt="xs">
             {activeTab == "bantuan" && (
